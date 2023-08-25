@@ -49,7 +49,6 @@ Size = int | Percent | Callable[[int], int] | Literal['fit-content']
 Align = Literal['start', 'center', 'end']
 Position = int | tuple[Block, Inline] | tuple[Top, Right, Bottom, Left]
 
-
 class Properties(TypedDict):
     width: Size
     height: Size
