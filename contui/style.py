@@ -77,38 +77,41 @@ class Ansi(Enum):
     Blink = 6
     Reverse = 7
     Strike = 9
-    U_Bold = 22
-    U_Dim = 22
-    U_Italic = 23
-    U_Underline = 24
-    U_SBlink = 25
-    U_RBlink = 25
-    U_Blink = 25
-    U_Reverse = 27
-    U_Strike = 29
+    R_Bold = 22
+    R_Dim = 22
+    R_Italic = 23
+    R_Underline = 24
+    R_SBlink = 25
+    R_RBlink = 25
+    R_Blink = 25
+    R_Reverse = 27
+    R_Strike = 29
+
+    @staticmethod
+    @cache
+    def as_dict() -> dict[str, int]:
+        return {i.name: i.value for i in Ansi}
+
+    @staticmethod
+    @cache
+    def values() -> list[int]:
+        return [i.value for i in Ansi]
+
+    @staticmethod
+    @cache
+    def names() -> list[str]:
+        return [i.name for i in Ansi]
 
     @staticmethod
     def from_int(value: int):
-        if value == 1:
-            return Ansi.Bold
-        elif value == 2:
-            return Ansi.Dim
-        elif value == 3:
-            return Ansi.Italic
-        elif value == 4:
-            return Ansi.Underline
-        elif value == 6:
-            return Ansi.Blink
-        elif value == 7:
-            return Ansi.Reverse
-        elif value == 9:
-            return Ansi.Strike
-        return Ansi.Bold
-
+        for option in Ansi:
+            if option.value == value:
+                return option
+        raise ValueError(f"Unexpected Ansi sequence code '{value}'")
 
 class S(Enum):
     """Helper enum for ansi sequence styling."""
-
+    
     Bold = 1 << 0
     Dim = 1 << 1
     Italic = 1 << 2
@@ -116,15 +119,15 @@ class S(Enum):
     Blink = 1 << 4
     Reverse = 1 << 5
     Strike = 1 << 6
-    # U_Bold = 1 << 7
-    # U_Dim = 1 << 8
-    # U_Italic = 1 << 9
-    # U_Underline = 1 << 10
-    # U_SBlink = 1 << 11
-    # U_RBlink = 1 << 12
-    # U_Blink = 1 << 13
-    # U_Reverse = 1 << 14
-    # U_Strike = 1 << 15
+    R_Bold = 1 << 7
+    R_Dim = 1 << 8
+    R_Italic = 1 << 9
+    R_Underline = 1 << 10
+    R_SBlink = 1 << 11
+    R_RBlink = 1 << 12
+    R_Blink = 1 << 13
+    R_Reverse = 1 << 14
+    R_Strike = 1 << 15
 
 
 class Style:
@@ -142,8 +145,8 @@ class Style:
 
     def __hash__(self) -> int:
         return (
-            self.style + (1 if self.fg != "" else 0)
-            << 16 + (1 if self.bg != "" else 0)
+            self.style | (1 if self.fg != "" else 0)
+            << 16 | (1 if self.bg != "" else 0)
             << 17
         )
 
@@ -153,22 +156,17 @@ class Style:
         sequence = sequence.lstrip("\x1b[").rstrip("m")
         codes = [int(code) for code in sequence.split(";")]
 
-        # Bold = 1
-        # Dim = 2
-        # Italic = 3
-        # Underline = 4
-        # Blink = 6
-        # Reverse = 7
-        # Strike = 9
         i = 0
         while i < len(codes):
             code = codes[i]
-            if code < 10 and code > 0 and code != 8:
+            if code in Ansi.values():
                 style.style |= S[Ansi.from_int(code).name].value
+            # 30 - 37
             elif code > 29 and code < 38:
-                style.fg = str(code)
+                style.fg = f';{code}'
+            # 40 - 47
             elif code > 39 and code < 48:
-                style.bg = str(code)
+                style.bg = f';{code}'
             elif code in [38, 48]:
                 if code < 40:
                     t = lambda val: setattr(style, "fg", f";3{val}")
@@ -214,7 +212,7 @@ class Style:
     @cache
     def reset(self) -> str:
         styles = [
-            Ansi[f"U_{style.name}"] for style in S if self.style & style.value > 0
+            Ansi[f"{style.name}"] for style in S if self.style & style.value > 0
         ]
         fg, bg = "", ""
         if self.fg != "":

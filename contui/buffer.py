@@ -33,7 +33,7 @@ class Pixel:
         return False
 
     def __repr__(self) -> str:
-        return repr(f"{self.style}{self.symbol}")
+        return repr(f"{self.style}{self.symbol}\x1b[0m")
 
     def __str__(self) -> str:
         return f"{self.style}{self.symbol}\x1b[0m"
