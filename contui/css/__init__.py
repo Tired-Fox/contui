@@ -16,9 +16,9 @@ References:
     </block>
 </ruleset>
 
-property => List of valid properties
-value => int, float, function, shorthand, hex, named constants, etc...
-block => `{}`
-selector => element, class, id, pseudo, children, sibling, etc...
-at-rules => @import, @media, etc...
+property => List of valid properties,
+value => int, float, function, shorthand, hex, named constants, etc...,
+block => `{}`,
+selector => element, class, id, pseudo, children, sibling, etc...,
+at-rules => @import, @media, etc...,
 """

@@ -1,0 +1,28 @@
+div > :is(.something) {
+    color: bisque;
+}
+
+div:is(.something)::after {
+    content: "Something \
+    here is something else \
+    over here"
+}
+
+/* ::-webkit- */
+/* ::-moz-    */
+/*
+    ::after
+    ::before
+    ::first-letter
+    ::placeholder
+    ::marker
+    ::backdrop
+    
+    ::first-line
+    ::part
+    ::cue
+    ::shadow
+    ::content
+    ::slotted
+    ::target-text
+*/
